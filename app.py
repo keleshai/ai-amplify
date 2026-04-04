@@ -9,7 +9,7 @@ st.set_page_config(page_title="AI Amplify", page_icon="🔎", layout="wide")
 
 st.title("🔎 AI Amplify")
 st.subheader("Content Creator Amplifier")
-st.caption("Turn 1 piece of content into 10+ platform-ready posts in seconds")
+st.caption("Turn 1 piece of content into 10+ platform-ready posts in seconds.")
 
 # ====================== FREE TIER ======================
 CURRENT_FREE_LIMIT = 25   # generations per week
