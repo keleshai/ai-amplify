@@ -5,24 +5,30 @@ import os
 from datetime import datetime, timedelta
 from fpdf import FPDF
 
+# ====================== PAGE SETUP ======================
 st.set_page_config(page_title="AI Amplify", page_icon="🔎", layout="wide")
 
 st.title("🔎 AI Amplify")
 st.subheader("Content Creator Amplifier")
-st.caption("🚀 AI Amplify - Turn 1 piece of content into 10+ platform-ready posts in seconds.")
+st.caption("🚀 Turn 1 piece of content into 10+ platform-ready posts in seconds.")
 
 # ====================== FREE TIER ======================
 CURRENT_FREE_LIMIT = 25   # generations per week
 
 with st.sidebar:
     st.header("Settings")
-    groq_api_key = st.text_input("Groq API Key", type="password", key="groq_key")
-    # Use secret key from secrets.toml on deployed app
+    groq_api_key = st.text_input("Groq API Key (local testing only)", type="password", key="groq_key")
+    
+    # Use secret key from secrets.toml on the live deployed app
     actual_key = st.secrets.get("GROQ_API_KEY") or groq_api_key
+    
     if actual_key:
         openai.api_key = actual_key
         openai.base_url = "https://api.groq.com/openai/v1"
-    brand_voice = st.text_area("Your Brand Voice (optional)", placeholder="Professional but witty tech marketer who loves data", height=100, key="brand_voice")
+    
+    brand_voice = st.text_area("Your Brand Voice (optional)", 
+                              placeholder="Professional but witty tech marketer who loves data", 
+                              height=100, key="brand_voice")
 
 # Weekly reset logic
 if "last_reset" not in st.session_state:
@@ -36,7 +42,7 @@ if datetime.now() - st.session_state.last_reset > timedelta(days=7):
 remaining = CURRENT_FREE_LIMIT - st.session_state.uses_this_week
 st.info(f"🎟️ Free uses left this week: **{remaining}** out of {CURRENT_FREE_LIMIT}\n(Upgrade for Unlimited Text – only $4.99/month)")
 
-# Upgrade button (placeholder - replace with real Stripe link later)
+# Upgrade button (replace the link with your real Stripe link later)
 if st.button("🔓 Upgrade for Unlimited Text – only $4.99/month", type="primary", use_container_width=True):
     st.markdown("[Go to Stripe Checkout →](https://buy.stripe.com/your_real_link_here)", unsafe_allow_html=True)
 
@@ -56,8 +62,9 @@ def save_history(entry):
     with open(HISTORY_FILE, "w") as f:
         json.dump(history, f)
 
-# Main app
-input_content = st.text_area("Paste your original content here (blog, script, transcript, etc.)", height=300, placeholder="Start writing or paste...", key="input_content")
+# Main input
+input_content = st.text_area("Paste your original content here (blog, script, transcript, etc.)", 
+                            height=300, placeholder="Start writing or paste...", key="input_content")
 
 output_options = {
     "LinkedIn Post": "Professional, value-driven LinkedIn post (max 300 words)",
@@ -69,8 +76,12 @@ output_options = {
     "Blog Summary": "Compelling blog summary / TL;DR"
 }
 
-selected = st.multiselect("Choose output formats", options=list(output_options.keys()), default=["LinkedIn Post", "X/Twitter Thread"], key="selected_formats")
+selected = st.multiselect("Choose output formats", 
+                         options=list(output_options.keys()), 
+                         default=["LinkedIn Post", "X/Twitter Thread"], 
+                         key="selected_formats")
 
+# ====================== GENERATE BUTTON ======================
 if st.button("🚀 Generate with AI", type="primary", use_container_width=True, key="generate_button") and input_content:
     if st.session_state.uses_this_week >= CURRENT_FREE_LIMIT:
         st.error("⏰ You've used all your free generations this week!")
@@ -78,7 +89,7 @@ if st.button("🚀 Generate with AI", type="primary", use_container_width=True, 
     else:
         with st.spinner("AI is amplifying your content..."):
             results = {}
-            # Use secret key from secrets.toml
+            # Use secret key from secrets.toml on deployed app
             groq_key = st.secrets.get("GROQ_API_KEY") or groq_api_key
             client = openai.OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1")
             
@@ -99,6 +110,7 @@ if st.button("🚀 Generate with AI", type="primary", use_container_width=True, 
                 except Exception as e:
                     results[fmt] = f"Error: {str(e)}"
 
+            # Save to history
             entry = {
                 "timestamp": datetime.now().isoformat(),
                 "original": input_content[:200] + "...",
@@ -138,4 +150,4 @@ if history:
 else:
     st.info("No history yet – generate something!")
 
-st.caption("AI Amplify • Content Creator Amplifier • Built by Naum Celesovski Aka Kelesh • Powered by Groq")
+st.caption("AI Amplify • Content Creator Amplifier • Built by Naum Celesovski • Powered by Groq")
