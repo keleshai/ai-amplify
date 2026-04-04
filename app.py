@@ -17,8 +17,10 @@ CURRENT_FREE_LIMIT = 25   # generations per week
 with st.sidebar:
     st.header("Settings")
     groq_api_key = st.text_input("Groq API Key", type="password", key="groq_key")
-    if groq_api_key:
-        openai.api_key = groq_api_key
+    # Use secret key from secrets.toml on deployed app
+    actual_key = st.secrets.get("GROQ_API_KEY") or groq_api_key
+    if actual_key:
+        openai.api_key = actual_key
         openai.base_url = "https://api.groq.com/openai/v1"
     brand_voice = st.text_area("Your Brand Voice (optional)", placeholder="Professional but witty tech marketer who loves data", height=100, key="brand_voice")
 
@@ -34,9 +36,9 @@ if datetime.now() - st.session_state.last_reset > timedelta(days=7):
 remaining = CURRENT_FREE_LIMIT - st.session_state.uses_this_week
 st.info(f"🎟️ Free uses left this week: **{remaining}** out of {CURRENT_FREE_LIMIT}\n(Upgrade for Unlimited Text – only $4.99/month)")
 
-# Upgrade button
+# Upgrade button (placeholder - replace with real Stripe link later)
 if st.button("🔓 Upgrade for Unlimited Text – only $4.99/month", type="primary", use_container_width=True):
-    st.markdown("[Go to Stripe Checkout →](https://buy.stripe.com/your_4.99_link_here)", unsafe_allow_html=True)
+    st.markdown("[Go to Stripe Checkout →](https://buy.stripe.com/your_real_link_here)", unsafe_allow_html=True)
 
 # History file
 HISTORY_FILE = "history.json"
@@ -69,14 +71,17 @@ output_options = {
 
 selected = st.multiselect("Choose output formats", options=list(output_options.keys()), default=["LinkedIn Post", "X/Twitter Thread"], key="selected_formats")
 
-if st.button("🚀 Generate with AI", type="primary", use_container_width=True, key="generate_button") and input_content and groq_api_key:
+if st.button("🚀 Generate with AI", type="primary", use_container_width=True, key="generate_button") and input_content:
     if st.session_state.uses_this_week >= CURRENT_FREE_LIMIT:
         st.error("⏰ You've used all your free generations this week!")
-        st.markdown("[Upgrade for Unlimited Text – $4.99/month →](https://buy.stripe.com/your_4.99_link_here)", unsafe_allow_html=True)
+        st.markdown("[Upgrade for Unlimited Text – $4.99/month →](https://buy.stripe.com/your_real_link_here)", unsafe_allow_html=True)
     else:
         with st.spinner("AI is amplifying your content..."):
             results = {}
-            client = openai.OpenAI(api_key=groq_api_key, base_url="https://api.groq.com/openai/v1")
+            # Use secret key from secrets.toml
+            groq_key = st.secrets.get("GROQ_API_KEY") or groq_api_key
+            client = openai.OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1")
+            
             for fmt in selected:
                 prompt = f"""
                 You are an expert content repurposer. Rewrite the following content as a {output_options[fmt]}.
@@ -133,4 +138,4 @@ if history:
 else:
     st.info("No history yet – generate something!")
 
-st.caption("AI Amplify • Content Creator Amplifier • Built by Naum Celesovski • Powered by Groq")
+st.caption("AI Amplify • Content Creator Amplifier • Built by Naum Celesovski Aka Kelesh • Powered by Groq")
