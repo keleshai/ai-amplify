@@ -5,7 +5,6 @@ import os
 from datetime import datetime, timedelta
 from fpdf import FPDF
 
-# ====================== PAGE SETUP ======================
 st.set_page_config(page_title="AI Amplify", page_icon="🔎", layout="wide")
 
 st.title("🔎 AI Amplify")
@@ -19,7 +18,7 @@ with st.sidebar:
     st.header("Settings")
     groq_api_key = st.text_input("Groq API Key (local testing only)", type="password", key="groq_key")
     
-    # Use secret key from secrets.toml on the live deployed app
+    # Use secret key from secrets.toml on the deployed app
     actual_key = st.secrets.get("GROQ_API_KEY") or groq_api_key
     
     if actual_key:
@@ -42,7 +41,7 @@ if datetime.now() - st.session_state.last_reset > timedelta(days=7):
 remaining = CURRENT_FREE_LIMIT - st.session_state.uses_this_week
 st.info(f"🎟️ Free uses left this week: **{remaining}** out of {CURRENT_FREE_LIMIT}\n(Upgrade for Unlimited Text – only $4.99/month)")
 
-# Upgrade button (replace the link with your real Stripe link later)
+# Upgrade button (replace with your real Stripe link later)
 if st.button("🔓 Upgrade for Unlimited Text – only $4.99/month", type="primary", use_container_width=True):
     st.markdown("[Go to Stripe Checkout →](https://buy.stripe.com/your_real_link_here)", unsafe_allow_html=True)
 
@@ -89,7 +88,7 @@ if st.button("🚀 Generate with AI", type="primary", use_container_width=True, 
     else:
         with st.spinner("AI is amplifying your content..."):
             results = {}
-            # Use secret key from secrets.toml on deployed app
+            # Use secret key from secrets.toml
             groq_key = st.secrets.get("GROQ_API_KEY") or groq_api_key
             client = openai.OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1")
             
@@ -150,4 +149,4 @@ if history:
 else:
     st.info("No history yet – generate something!")
 
-st.caption("AI Amplify • Content Creator Amplifier • Built by Naum Celesovski • Powered by Groq")
+st.caption("AI Amplify • Content Creator Amplifier • Built by Naum Celesovski Aka Kelesh • Powered by Groq")
