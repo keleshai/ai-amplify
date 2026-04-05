@@ -18,7 +18,7 @@ with st.sidebar:
     groq_api_key = st.text_input("Groq API Key (local testing only)", type="password", key="groq_key")
     brand_voice = st.text_area("Your Brand Voice (optional)", placeholder="Professional but witty tech marketer who loves data", height=100, key="brand_voice")
 
-groq_key = "gsk_SdlX2g9xLzk6fqTaluMVWGdyb3FYXA7c31muHaCv3TekNDIEiC2"  
+groq_key = "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"
 
 # Weekly reset logic
 if "last_reset" not in st.session_state:
